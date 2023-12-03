@@ -24,7 +24,6 @@ def replace_string_with_fitting_number(str,sub,rpl):
     # Using replace() method with case-insensitive comparison
     result_string = str.lower().replace(substring_to_replace.lower(), replacement_string)
 
-    print(result_string)
     return result_string
 
 
