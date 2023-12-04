@@ -1,4 +1,3 @@
-import re
 
 file_path = "/Users/andilar/Documents/GitHub/AdventOfCode/2023/04/data.txt"
 
@@ -6,9 +5,6 @@ points = 0
 
 with open(file_path, 'r') as file:
     for line in file:
-        # separator @40
-        # first number @10 + 11
-        init_points=0
         temp_points=0
 
         before_separator, after_separator = line.split("|")
@@ -22,7 +18,6 @@ with open(file_path, 'r') as file:
                     temp_points += 1
                 else:
                     temp_points = temp_points * 2
-
         points += temp_points
 
     print (points)
