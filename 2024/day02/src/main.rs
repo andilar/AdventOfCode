@@ -3,16 +3,10 @@ use std::io::{ self, BufRead, BufReader };
 use std::path::Path;
 
 fn main() -> io::Result<()> {
-    // Pfad zur Eingabedatei
     let input = "input.txt";
-
-    // Lese die Berichte aus der Datei
     let reports = read_reports_from_file(input)?;
-
-    // Berechne die Anzahl der sicheren Berichte
     let safe_reports_count = count_safe_reports(&reports);
 
-    // Ausgabe der Anzahl der sicheren Berichte
     println!("Die Anzahl der sicheren Berichte beträgt: {}", safe_reports_count);
 
     Ok(())
@@ -72,11 +66,13 @@ fn is_safe_report(report: &Vec<i32>) -> bool {
         if diff.abs() < 1 || diff.abs() > 3 {
             return false;
         }
-        if diff < 0 {
-            increasing = false;
-        }
-        if diff > 0 {
-            decreasing = false;
+        
+        if diff != 0 {
+            if diff < 0 {
+                increasing = false;
+            } else {
+                decreasing = false;
+            }
         }
     }
 
