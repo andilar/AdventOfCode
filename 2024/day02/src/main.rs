@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{ self, BufRead, BufReader };
+use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 
 fn main() -> io::Result<()> {
@@ -18,7 +18,10 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
-fn read_reports_from_file<P>(filename: P) -> io::Result<Vec<Vec<i32>>> where P: AsRef<Path> {
+fn read_reports_from_file<P>(filename: P) -> io::Result<Vec<Vec<i32>>>
+where
+    P: AsRef<Path>,
+{
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
 
@@ -37,10 +40,7 @@ fn read_reports_from_file<P>(filename: P) -> io::Result<Vec<Vec<i32>>> where P: 
 }
 
 fn count_safe_reports(reports: &Vec<Vec<i32>>) -> usize {
-    reports
-        .iter()
-        .filter(|report| is_safe_report(report))
-        .count()
+    reports.iter().filter(|report| is_safe_report(report)).count()
 }
 
 fn is_safe_report(report: &Vec<i32>) -> bool {
@@ -53,7 +53,7 @@ fn is_safe_report(report: &Vec<i32>) -> bool {
 
     for window in report.windows(2) {
         let diff = window[1] - window[0];
-        if diff < 1 || diff > 3 {
+        if diff.abs() < 1 || diff.abs() > 3 {
             return false;
         }
         if diff < 0 {
