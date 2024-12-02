@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::io::{ self, BufRead, BufReader };
 use std::path::Path;
 
 fn main() -> io::Result<()> {
@@ -18,10 +18,7 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
-fn read_reports_from_file<P>(filename: P) -> io::Result<Vec<Vec<i32>>>
-where
-    P: AsRef<Path>,
-{
+fn read_reports_from_file<P>(filename: P) -> io::Result<Vec<Vec<i32>>> where P: AsRef<Path> {
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
 
@@ -40,7 +37,26 @@ where
 }
 
 fn count_safe_reports(reports: &Vec<Vec<i32>>) -> usize {
-    reports.iter().filter(|report| is_safe_report(report)).count()
+    reports
+        .iter()
+        .filter(|report| is_safe_or_can_be_made_safe(report))
+        .count()
+}
+
+fn is_safe_or_can_be_made_safe(report: &Vec<i32>) -> bool {
+    if is_safe_report(report) {
+        return true;
+    }
+
+    for i in 0..report.len() {
+        let mut modified_report = report.clone();
+        modified_report.remove(i);
+        if is_safe_report(&modified_report) {
+            return true;
+        }
+    }
+
+    false
 }
 
 fn is_safe_report(report: &Vec<i32>) -> bool {
