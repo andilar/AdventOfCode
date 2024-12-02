@@ -26,17 +26,22 @@ fn read_lists_from_file<P>(filename: P) -> io::Result<(Vec<i32>, Vec<i32>)> wher
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
 
-    let mut lines = reader.lines();
-    let left_list = parse_line_to_vec(&lines.next().unwrap()?);
-    let right_list = parse_line_to_vec(&lines.next().unwrap()?);
+    let mut left_list = Vec::new();
+    let mut right_list = Vec::new();
+
+    for line in reader.lines() {
+        let line = line?;
+        let numbers: Vec<i32> = line
+            .split_whitespace()
+            .map(|s| s.parse().unwrap())
+            .collect();
+        if numbers.len() == 2 {
+            left_list.push(numbers[0]);
+            right_list.push(numbers[1]);
+        }
+    }
 
     Ok((left_list, right_list))
-}
-
-fn parse_line_to_vec(line: &str) -> Vec<i32> {
-    line.split_whitespace()
-        .map(|s| s.parse().unwrap())
-        .collect()
 }
 
 fn calculate_total_distance(left_list: &Vec<i32>, right_list: &Vec<i32>) -> i32 {
