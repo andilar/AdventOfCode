@@ -19,7 +19,7 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
-fn read_lists_from_file<P>(filename: P) -> io::Result<(Vec<i32>, Vec<i32>)>
+fn read_lists_from_file<P>(filename: P) -> io::Result<(Vec<i64>, Vec<i64>)>
 where
     P: AsRef<Path>,
 {
@@ -31,7 +31,7 @@ where
 
     for line in reader.lines() {
         let line = line?;
-        let numbers: Vec<i32> = line
+        let numbers: Vec<i64> = line
             .split_whitespace()
             .map(|s| s.parse().unwrap())
             .collect();
@@ -44,7 +44,7 @@ where
     Ok((left_list, right_list))
 }
 
-fn calculate_similarity_score(left_list: &Vec<i32>, right_list: &Vec<i32>) -> i32 {
+fn calculate_similarity_score(left_list: &Vec<i64>, right_list: &Vec<i64>) -> i64 {
     let mut frequency_map = HashMap::new();
 
     // Zähle die Häufigkeit jedes Elements in der rechten Liste
