@@ -5,9 +5,9 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceRoot}/2024/day02/target/debug/day02",
+            "program": "${workspaceRoot}/2024/day03/target/debug/day03",
             "args": [],
-            "cwd": "${workspaceRoot}/2024/day02/target/debug/",
+            "cwd": "${workspaceRoot}/2024/day03/target/debug/",
             "sourceLanguages": ["rust"]
         }
     ]
