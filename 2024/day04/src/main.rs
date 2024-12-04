@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{ self, BufRead };
 use std::path::Path;
+
 fn main() {
     // Read the input file
     let path = "input.txt";
@@ -14,11 +15,13 @@ fn main() {
     let total_count = count_xmas_occurrences(&word_search);
     println!("Total occurrences of X-MAS: {}", total_count);
 }
+
 fn read_lines<P>(filename: P) -> io::Result<Vec<String>> where P: AsRef<Path> {
     let file = File::open(filename)?;
     let buf = io::BufReader::new(file);
     buf.lines().collect()
 }
+
 fn count_xmas_occurrences(word_search: &Vec<Vec<char>>) -> usize {
     let n = word_search.len();
     let mut count = 0;
@@ -33,6 +36,7 @@ fn count_xmas_occurrences(word_search: &Vec<Vec<char>>) -> usize {
     }
     count
 }
+
 fn check_xmas_pattern(word_search: &Vec<Vec<char>>, i: usize, j: usize) -> bool {
     let patterns = vec![
         vec![(0, 0), (1, 1), (2, 2), (0, 2), (2, 0)], // Diagonal top-left to bottom-right
@@ -40,6 +44,7 @@ fn check_xmas_pattern(word_search: &Vec<Vec<char>>, i: usize, j: usize) -> bool 
         vec![(0, 2), (1, 1), (2, 0), (0, 0), (2, 2)], // Diagonal top-right to bottom-left
         vec![(2, 2), (1, 1), (0, 0), (2, 0), (0, 2)] // Diagonal bottom-right to top-left
     ];
+
     for pattern in patterns {
         if
             pattern
