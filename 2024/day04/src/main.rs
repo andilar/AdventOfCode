@@ -41,6 +41,11 @@ fn count_xmas_occurrences(word_search: &Vec<Vec<char>>, word: &str) -> usize {
             if word_search[i][j..j + word_len].iter().rev().eq(word_chars.iter()) {
                 count += 1;
             }
+        }
+    }
+
+    for i in 0..=n - word_len {
+        for j in 0..n {
             // Vertical top to bottom
             if (0..word_len).all(|k| word_search[i + k][j] == word_chars[k]) {
                 count += 1;
