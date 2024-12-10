@@ -1,3 +1,97 @@
-fn main() {
-    println!("Hello, world!");
+use std::collections::HashSet;
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::path::Path;
+
+fn parse_map(map_str: &str) -> (Vec<Vec<char>>, (usize, usize), char) {
+    let map_lines: Vec<Vec<char>> = map_str.lines().map(|line| line.chars().collect()).collect();
+    let mut guard_pos = (0, 0);
+    let mut guard_dir = '^';
+    let directions = vec!['^', '>', 'v', '<'];
+
+    for (y, line) in map_lines.iter().enumerate() {
+        for (x, &char) in line.iter().enumerate() {
+            if directions.contains(&char) {
+                guard_pos = (x, y);
+                guard_dir = char;
+                break;
+            }
+        }
+        if guard_pos != (0, 0) {
+            break;
+        }
+    }
+
+    (map_lines, guard_pos, guard_dir)
+}
+
+fn turn_right(direction: char) -> char {
+    match direction {
+        '^' => '>',
+        '>' => 'v',
+        'v' => '<',
+        '<' => '^',
+        _ => direction,
+    }
+}
+
+fn move_forward(position: (usize, usize), direction: char) -> (usize, usize) {
+    match direction {
+        '^' => (position.0, position.1.wrapping_sub(1)),
+        '>' => (position.0 + 1, position.1),
+        'v' => (position.0, position.1 + 1),
+        '<' => (position.0.wrapping_sub(1), position.1),
+        _ => position,
+    }
+}
+
+fn is_within_bounds(position: (usize, usize), map_lines: &Vec<Vec<char>>) -> bool {
+    let (x, y) = position;
+    y < map_lines.len() && x < map_lines[0].len()
+}
+
+fn is_obstacle(position: (usize, usize), map_lines: &Vec<Vec<char>>) -> bool {
+    let (x, y) = position;
+    map_lines[y][x] == '#'
+}
+
+fn simulate_guard(map_str: &str) -> usize {
+    let (map_lines, mut guard_pos, mut guard_dir) = parse_map(map_str);
+    let mut visited_positions: HashSet<(usize, usize)> = HashSet::new();
+    visited_positions.insert(guard_pos);
+
+    loop {
+        let next_pos = move_forward(guard_pos, guard_dir);
+
+        if !is_within_bounds(next_pos, &map_lines) {
+            break;
+        }
+
+        if is_obstacle(next_pos, &map_lines) {
+            guard_dir = turn_right(guard_dir);
+        } else {
+            guard_pos = next_pos;
+            visited_positions.insert(guard_pos);
+        }
+    }
+
+    visited_positions.len()
+}
+
+fn read_input_file(filename: &str) -> io::Result<String> {
+    let path = Path::new(filename);
+    let file = File::open(&path)?;
+    let mut content = String::new();
+    for line in io::BufReader::new(file).lines() {
+        content.push_str(&line?);
+        content.push('\n');
+    }
+    Ok(content)
+}
+
+fn main() -> io::Result<()> {
+    let map_str = read_input_file("input.txt")?;
+    let result = simulate_guard(&map_str);
+    println!("Distinct positions visited: {}", result);
+    Ok(())
 }
