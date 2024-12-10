@@ -20,7 +20,7 @@ fn parse_input(filename: &str) -> io::Result<Vec<(usize, char)>> {
     Ok(antennas)
 }
 
-fn find_antinodes(antennas: &[(usize, char)], line_length: usize) -> HashSet<usize> {
+fn find_antinodes(antennas: &[(usize, char)]) -> HashSet<usize> {
     let mut antinodes = HashSet::new();
 
     for i in 0..antennas.len() {
@@ -38,7 +38,7 @@ fn find_antinodes(antennas: &[(usize, char)], line_length: usize) -> HashSet<usi
                     if antinode1 >= 0 {
                         antinodes.insert(antinode1 as usize);
                     }
-                    if antinode2 < (line_length as isize) {
+                    if antinode2 < (antennas.len() as isize) {
                         antinodes.insert(antinode2 as usize);
                     }
                 }
@@ -51,13 +51,7 @@ fn find_antinodes(antennas: &[(usize, char)], line_length: usize) -> HashSet<usi
 
 fn main() -> io::Result<()> {
     let antennas = parse_input("input.txt")?;
-    let line_length =
-        antennas
-            .iter()
-            .map(|(pos, _)| *pos)
-            .max()
-            .unwrap_or(0) + 1;
-    let antinodes = find_antinodes(&antennas, line_length);
+    let antinodes = find_antinodes(&antennas);
     println!("Number of unique antinode locations: {}", antinodes.len());
     Ok(())
 }
