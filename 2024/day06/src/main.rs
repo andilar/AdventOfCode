@@ -55,7 +55,7 @@ fn is_obstacle(position: (usize, usize), map_lines: &Vec<Vec<char>>) -> bool {
     map_lines[y][x] == '#'
 }
 
-fn simulate_guard(map_str: &str) -> usize {
+fn simulate_guard(map_str: &str) -> HashSet<(usize, usize)> {
     let (map_lines, mut guard_pos, mut guard_dir) = parse_map(map_str);
     let mut visited_positions: HashSet<(usize, usize)> = HashSet::new();
     visited_positions.insert(guard_pos);
@@ -75,7 +75,46 @@ fn simulate_guard(map_str: &str) -> usize {
         }
     }
 
-    visited_positions.len()
+    visited_positions
+}
+
+fn simulate_with_obstruction(map_lines: &Vec<Vec<char>>, start_pos: (usize, usize), start_dir: char, obstruction: (usize, usize)) -> bool {
+    let mut guard_pos = start_pos;
+    let mut guard_dir = start_dir;
+    let mut visited_positions: HashSet<(usize, usize)> = HashSet::new();
+    visited_positions.insert(guard_pos);
+
+    loop {
+        let next_pos = move_forward(guard_pos, guard_dir);
+
+        if !is_within_bounds(next_pos, &map_lines) {
+            return false;
+        }
+
+        if next_pos == obstruction || is_obstacle(next_pos, &map_lines) {
+            guard_dir = turn_right(guard_dir);
+        } else {
+            guard_pos = next_pos;
+            if visited_positions.contains(&guard_pos) {
+                return true;
+            }
+            visited_positions.insert(guard_pos);
+        }
+    }
+}
+
+fn find_loop_positions(map_str: &str) -> usize {
+    let (map_lines, guard_pos, guard_dir) = parse_map(map_str);
+    let visited_positions = simulate_guard(map_str);
+    let mut loop_positions = 0;
+
+    for &pos in &visited_positions {
+        if pos != guard_pos && simulate_with_obstruction(&map_lines, guard_pos, guard_dir, pos) {
+            loop_positions += 1;
+        }
+    }
+
+    loop_positions
 }
 
 fn read_input_file(filename: &str) -> io::Result<String> {
@@ -91,7 +130,7 @@ fn read_input_file(filename: &str) -> io::Result<String> {
 
 fn main() -> io::Result<()> {
     let map_str = read_input_file("input.txt")?;
-    let result = simulate_guard(&map_str);
-    println!("Distinct positions visited: {}", result);
+    let result = find_loop_positions(&map_str);
+    println!("Possible positions for obstruction: {}", result);
     Ok(())
 }
