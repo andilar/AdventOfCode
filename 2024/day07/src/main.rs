@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{self, BufRead};
+use std::io::{ self, BufRead };
 use std::path::Path;
 use std::time::Instant;
 
@@ -12,14 +12,23 @@ fn parse_input(filename: &str) -> io::Result<Vec<(i64, Vec<i64>)>> {
         let line = line?;
         let parts: Vec<&str> = line.split(": ").collect();
         let test_value: i64 = parts[0].parse().unwrap();
-        let numbers: Vec<i64> = parts[1].split_whitespace().map(|s| s.parse().unwrap()).collect();
+        let numbers: Vec<i64> = parts[1]
+            .split_whitespace()
+            .map(|s| s.parse().unwrap())
+            .collect();
         equations.push((test_value, numbers));
     }
 
     Ok(equations)
 }
 
-fn generate_expressions(numbers: &[i64], operators: &[&str], index: usize, current_expr: &mut Vec<String>, expressions: &mut Vec<String>) {
+fn generate_expressions(
+    numbers: &[i64],
+    operators: &[&str],
+    index: usize,
+    current_expr: &mut Vec<String>,
+    expressions: &mut Vec<String>
+) {
     if index == numbers.len() - 1 {
         expressions.push(current_expr.join(" "));
         return;
@@ -47,7 +56,7 @@ fn evaluate_expression(expression: &str) -> i64 {
         } else if op == "*" {
             result *= num;
         } else if op == "||" {
-            result = result * 10_i64.pow(num.to_string().len() as u32) + num;
+            result = result * (10_i64).pow(num.to_string().len() as u32) + num;
         }
         i += 2;
     }
