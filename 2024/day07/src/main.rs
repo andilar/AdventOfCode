@@ -18,7 +18,7 @@ fn parse_input(filename: &str) -> io::Result<Vec<(i64, Vec<i64>)>> {
     Ok(equations)
 }
 
-fn generate_expressions(numbers: &[i64], operators: &[char], index: usize, current_expr: &mut Vec<String>, expressions: &mut Vec<String>) {
+fn generate_expressions(numbers: &[i64], operators: &[&str], index: usize, current_expr: &mut Vec<String>, expressions: &mut Vec<String>) {
     if index == numbers.len() - 1 {
         expressions.push(current_expr.join(" "));
         return;
@@ -45,6 +45,8 @@ fn evaluate_expression(expression: &str) -> i64 {
             result += num;
         } else if op == "*" {
             result *= num;
+        } else if op == "||" {
+            result = result * 10_i64.pow(num.to_string().len() as u32) + num;
         }
         i += 2;
     }
@@ -54,7 +56,7 @@ fn evaluate_expression(expression: &str) -> i64 {
 
 fn main() -> io::Result<()> {
     let equations = parse_input("input.txt")?;
-    let operators = vec!['+', '*'];
+    let operators = vec!["+", "*", "||"];
     let mut total_calibration_result = 0;
 
     for (test_value, numbers) in equations {
