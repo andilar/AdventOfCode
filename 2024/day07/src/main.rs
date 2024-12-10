@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::time::Instant;
 
 fn parse_input(filename: &str) -> io::Result<Vec<(i64, Vec<i64>)>> {
     let path = Path::new(filename);
@@ -55,6 +56,8 @@ fn evaluate_expression(expression: &str) -> i64 {
 }
 
 fn main() -> io::Result<()> {
+    let start_time = Instant::now();
+
     let equations = parse_input("input.txt")?;
     let operators = vec!["+", "*", "||"];
     let mut total_calibration_result = 0;
@@ -72,6 +75,9 @@ fn main() -> io::Result<()> {
         }
     }
 
+    let duration = start_time.elapsed();
     println!("Total calibration result: {}", total_calibration_result);
+    println!("Time taken: {:?}", duration);
+
     Ok(())
 }
