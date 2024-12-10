@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::{ self, BufRead };
 use std::path::Path;
 
+/// Reads the input file and returns the topographic map as a 2D vector of u8 values.
 fn parse_input(filename: &str) -> io::Result<Vec<Vec<u8>>> {
     let path = Path::new(filename);
     let file = File::open(&path)?;
@@ -20,6 +21,7 @@ fn parse_input(filename: &str) -> io::Result<Vec<Vec<u8>>> {
     Ok(map)
 }
 
+/// Identifies all trailheads (positions with height 0) on the topographic map.
 fn find_trailheads(map: &[Vec<u8>]) -> Vec<(usize, usize)> {
     let mut trailheads = Vec::new();
     for (i, row) in map.iter().enumerate() {
@@ -32,7 +34,8 @@ fn find_trailheads(map: &[Vec<u8>]) -> Vec<(usize, usize)> {
     trailheads
 }
 
-fn bfs(map: &[Vec<u8>], start: (usize, usize)) -> HashSet<(usize, usize)> {
+/// Performs a breadth-first search (BFS) to find all distinct hiking trails from a given trailhead.
+fn bfs(map: &[Vec<u8>], start: (usize, usize)) -> u64 {
     let directions = [
         (0, 1),
         (1, 0),
@@ -41,14 +44,14 @@ fn bfs(map: &[Vec<u8>], start: (usize, usize)) -> HashSet<(usize, usize)> {
     ];
     let mut queue = VecDeque::new();
     let mut visited = HashSet::new();
-    let mut reachable_nines = HashSet::new();
+    let mut trail_count = 0;
 
     queue.push_back((start, 0));
     visited.insert(start);
 
     while let Some(((x, y), height)) = queue.pop_front() {
         if height == 9 {
-            reachable_nines.insert((x, y));
+            trail_count += 1;
             continue;
         }
 
@@ -69,24 +72,33 @@ fn bfs(map: &[Vec<u8>], start: (usize, usize)) -> HashSet<(usize, usize)> {
         }
     }
 
-    reachable_nines
+    trail_count
 }
 
-fn calculate_scores(map: &[Vec<u8>], trailheads: &[(usize, usize)]) -> u64 {
-    let mut total_score = 0;
+/// Calculates the rating for each trailhead by counting the number of distinct hiking trails that begin at that trailhead.
+fn calculate_ratings(map: &[Vec<u8>], trailheads: &[(usize, usize)]) -> u64 {
+    let mut total_rating = 0;
 
     for &trailhead in trailheads {
-        let reachable_nines = bfs(map, trailhead);
-        total_score += reachable_nines.len() as u64;
+        let trail_count = bfs(map, trailhead);
+        total_rating += trail_count;
     }
 
-    total_score
+    total_rating
 }
 
 fn main() -> io::Result<()> {
+    // Parse the input file to get the topographic map.
     let map = parse_input("input.txt")?;
+
+    // Find all trailheads on the map.
     let trailheads = find_trailheads(&map);
-    let total_score = calculate_scores(&map, &trailheads);
-    println!("Sum of the scores of all trailheads: {}", total_score);
+
+    // Calculate the total rating of all trailheads.
+    let total_rating = calculate_ratings(&map, &trailheads);
+
+    // Print the resulting sum of the ratings.
+    println!("Sum of the ratings of all trailheads: {}", total_rating);
+
     Ok(())
 }

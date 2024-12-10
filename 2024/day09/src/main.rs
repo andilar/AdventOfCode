@@ -1,104 +1,104 @@
+use std::collections::{ HashSet, VecDeque };
 use std::fs::File;
 use std::io::{ self, BufRead };
 use std::path::Path;
 
-/// Reads the input file and returns the disk map as a string.
-fn parse_input(filename: &str) -> io::Result<String> {
+/// Reads the input file and returns the topographic map as a 2D vector of u8 values.
+fn parse_input(filename: &str) -> io::Result<Vec<Vec<u8>>> {
     let path = Path::new(filename);
     let file = File::open(&path)?;
-    let mut disk_map = String::new();
+    let mut map = Vec::new();
 
-    // Read each line from the file and append it to the disk_map string.
     for line in io::BufReader::new(file).lines() {
-        disk_map.push_str(&line?);
+        let line = line?;
+        let row: Vec<u8> = line
+            .chars()
+            .map(|c| c.to_digit(10).unwrap() as u8)
+            .collect();
+        map.push(row);
     }
 
-    Ok(disk_map)
+    Ok(map)
 }
 
-/// Compacts the disk by moving file blocks to the leftmost free space.
-fn compact_disk(disk_map: &str) -> Vec<char> {
-    let mut blocks: Vec<char> = Vec::new();
-    let mut file_id = 0;
-
-    let mut chars = disk_map.chars();
-    while let Some(file_len_char) = chars.next() {
-        if let Some(file_len) = file_len_char.to_digit(10) {
-            // Convert the file_id to a character.
-            let file_id_char = match std::char::from_digit(file_id, 10) {
-                Some(c) => c,
-                None => {
-                    eprintln!("Invalid file ID: {}", file_id);
-                    continue;
-                }
-            };
-
-            // Add the file blocks to the blocks vector.
-            for _ in 0..file_len {
-                blocks.push(file_id_char);
+/// Identifies all trailheads (positions with height 0) on the topographic map.
+fn find_trailheads(map: &[Vec<u8>]) -> Vec<(usize, usize)> {
+    let mut trailheads = Vec::new();
+    for (i, row) in map.iter().enumerate() {
+        for (j, &height) in row.iter().enumerate() {
+            if height == 0 {
+                trailheads.push((i, j));
             }
-            file_id += 1;
+        }
+    }
+    trailheads
+}
 
-            // Read the free space length and add free space blocks to the blocks vector.
-            if let Some(free_len_char) = chars.next() {
-                if let Some(free_len) = free_len_char.to_digit(10) {
-                    for _ in 0..free_len {
-                        blocks.push('.');
+/// Performs a breadth-first search (BFS) to find all distinct hiking trails from a given trailhead.
+fn bfs(map: &[Vec<u8>], start: (usize, usize)) -> u64 {
+    let directions = [
+        (0, 1),
+        (1, 0),
+        (0, -1),
+        (-1, 0),
+    ];
+    let mut queue = VecDeque::new();
+    let mut visited = HashSet::new();
+    let mut trail_count = 0;
+
+    queue.push_back((start, 0));
+    visited.insert(start);
+
+    while let Some(((x, y), height)) = queue.pop_front() {
+        if height == 9 {
+            trail_count += 1;
+            continue;
+        }
+
+        for &(dx, dy) in &directions {
+            let nx = (x as isize) + dx;
+            let ny = (y as isize) + dy;
+            if nx >= 0 && ny >= 0 {
+                let nx = nx as usize;
+                let ny = ny as usize;
+                if nx < map.len() && ny < map[0].len() {
+                    let next_height = map[nx][ny];
+                    if next_height == height + 1 && !visited.contains(&(nx, ny)) {
+                        queue.push_back(((nx, ny), next_height));
+                        visited.insert((nx, ny));
                     }
-                } else {
-                    eprintln!("Unexpected character for free space length: {}", free_len_char);
                 }
-            } else {
-                eprintln!("Missing free space length after file length: {}", file_len_char);
             }
-        } else {
-            eprintln!("Unexpected character for file length: {}", file_len_char);
         }
     }
 
-    // Compact the disk by moving file blocks to the leftmost free space.
-    let mut compacted_blocks: Vec<char> = Vec::new();
-    for block in blocks.iter() {
-        if *block != '.' {
-            compacted_blocks.push(*block);
-        }
-    }
-
-    // Fill the remaining space with '.'.
-    while compacted_blocks.len() < blocks.len() {
-        compacted_blocks.push('.');
-    }
-
-    compacted_blocks
+    trail_count
 }
 
-/// Calculates the checksum by summing the result of multiplying each block's position with the file ID number it contains.
-fn calculate_checksum(blocks: &[char]) -> u64 {
-    let mut checksum = 0;
-    for (pos, &block) in blocks.iter().enumerate() {
-        if block != '.' {
-            if let Some(file_id) = block.to_digit(10) {
-                checksum += (pos as u64) * (file_id as u64);
-            } else {
-                eprintln!("Unexpected character in block: {}", block);
-            }
-        }
+/// Calculates the rating for each trailhead by counting the number of distinct hiking trails that begin at that trailhead.
+fn calculate_ratings(map: &[Vec<u8>], trailheads: &[(usize, usize)]) -> u64 {
+    let mut total_rating = 0;
+
+    for &trailhead in trailheads {
+        let trail_count = bfs(map, trailhead);
+        total_rating += trail_count;
     }
-    checksum
+
+    total_rating
 }
 
 fn main() -> io::Result<()> {
-    // Parse the input file to get the disk map.
-    let disk_map = parse_input("input.txt")?;
+    // Parse the input file to get the topographic map.
+    let map = parse_input("input.txt")?;
 
-    // Compact the disk based on the disk map.
-    let compacted_blocks = compact_disk(&disk_map);
+    // Find all trailheads on the map.
+    let trailheads = find_trailheads(&map);
 
-    // Calculate the checksum of the compacted disk.
-    let checksum = calculate_checksum(&compacted_blocks);
+    // Calculate the total rating of all trailheads.
+    let total_rating = calculate_ratings(&map, &trailheads);
 
-    // Print the resulting checksum.
-    println!("Filesystem checksum: {}", checksum);
+    // Print the resulting sum of the ratings.
+    println!("Sum of the ratings of all trailheads: {}", total_rating);
 
     Ok(())
 }
