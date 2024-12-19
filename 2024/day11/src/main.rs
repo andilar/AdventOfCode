@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use std::fs::File;
 use std::io::{ self, BufRead };
 use std::path::Path;
@@ -11,19 +12,19 @@ fn split_number(n: u64) -> (u64, u64) {
 }
 
 fn blink(stones: Vec<u64>) -> Vec<u64> {
-    let mut new_stones = Vec::new();
-    for stone in stones {
-        if stone == 0 {
-            new_stones.push(1);
-        } else if stone.to_string().len() % 2 == 0 {
-            let (left, right) = split_number(stone);
-            new_stones.push(left);
-            new_stones.push(right);
-        } else {
-            new_stones.push(stone * 2024);
-        }
-    }
-    new_stones
+    stones
+        .into_par_iter()
+        .flat_map(|stone| {
+            if stone == 0 {
+                vec![1]
+            } else if stone.to_string().len() % 2 == 0 {
+                let (left, right) = split_number(stone);
+                vec![left, right]
+            } else {
+                vec![stone * 2024]
+            }
+        })
+        .collect()
 }
 
 fn simulate_blinks(initial_stones: Vec<u64>, blinks: usize) -> Vec<u64> {
