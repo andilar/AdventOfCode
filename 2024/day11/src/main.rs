@@ -50,7 +50,7 @@ fn read_input_file(filename: &str) -> io::Result<Vec<u64>> {
 
 fn main() -> io::Result<()> {
     let initial_stones = read_input_file("input.txt")?;
-    let blinks = 25;
+    let blinks = 75;
     let final_stones = simulate_blinks(initial_stones, blinks);
     println!("Number of stones after {} blinks: {}", blinks, final_stones.len());
     Ok(())
