@@ -18,7 +18,7 @@ fn process_stone(stone: u64) -> Vec<u64> {
         let (left, right) = split_number(stone);
         vec![left, right]
     } else {
-        vec![stone * 2024]
+        vec![stone * 2 * 2 * 506]
     }
 }
 
@@ -59,7 +59,7 @@ fn read_input_file(filename: &str) -> io::Result<Vec<u64>> {
 fn main() -> io::Result<()> {
     let initial_stones = read_input_file("input.txt")?;
     let blinks = 75;
-    let batch_size = 1000; // Adjust the batch size as needed
+    let batch_size = 10; // Adjust the batch size 
     let final_stones = simulate_blinks(initial_stones, blinks, batch_size);
     println!("Number of stones after {} blinks: {}", blinks, final_stones.len());
     Ok(())
