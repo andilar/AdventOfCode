@@ -29,7 +29,7 @@ fn get_neighbors(point: Point, width: usize, height: usize) -> Vec<Point> {
 fn bfs(map: &Vec<Vec<char>>, start: Point, visited: &mut HashSet<Point>) -> (usize, usize) {
     let mut queue = VecDeque::new();
     let mut area = 0;
-    let mut perimeter = 0;
+    let mut sides = 0;
     let plant_type = map[start.y][start.x];
     let width = map[0].len();
     let height = map.len();
@@ -39,21 +39,22 @@ fn bfs(map: &Vec<Vec<char>>, start: Point, visited: &mut HashSet<Point>) -> (usi
 
     while let Some(point) = queue.pop_front() {
         area += 1;
-        let mut local_perimeter = 4;
+        let mut local_sides = 0;
 
         for neighbor in get_neighbors(point, width, height) {
             if map[neighbor.y][neighbor.x] == plant_type {
-                local_perimeter -= 1;
                 if !visited.contains(&neighbor) {
                     visited.insert(neighbor);
                     queue.push_back(neighbor);
                 }
+            } else {
+                local_sides += 1;
             }
         }
-        perimeter += local_perimeter;
+        sides += local_sides;
     }
 
-    (area, perimeter)
+    (area, sides)
 }
 
 fn calculate_total_price(map: &Vec<Vec<char>>) -> usize {
@@ -64,8 +65,8 @@ fn calculate_total_price(map: &Vec<Vec<char>>) -> usize {
         for x in 0..map[0].len() {
             let point = Point { x, y };
             if !visited.contains(&point) {
-                let (area, perimeter) = bfs(map, point, &mut visited);
-                total_price += area * perimeter;
+                let (area, sides) = bfs(map, point, &mut visited);
+                total_price += area * sides;
             }
         }
     }
