@@ -84,13 +84,12 @@ fn extended_gcd(a: i32, b: i32) -> (i32, i32, i32) {
 }
 
 fn solve_diophantine(a: i32, b: i32, c: i32) -> Option<(i32, i32)> {
-    let (g, x, y) = extended_gcd(a, b);
-    if c % g != 0 {
-        None
-    } else {
-        let k = c / g;
-        Some((x * k, y * k))
+    let (gcd, coeff_x, coeff_y) = extended_gcd(a, b);
+    if gcd == 0 || c % gcd != 0 {
+        return None;
     }
+    let scale_factor = c / gcd;
+    Some((coeff_x * scale_factor, coeff_y * scale_factor))
 }
 
 fn find_min_tokens(machine: &Machine) -> Option<i32> {
